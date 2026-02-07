@@ -83,9 +83,9 @@
             <header class="bg-white px-6 pt-8 pb-4 z-20 border-b border-slate-100">
                 <div class="flex justify-between items-center mb-5">
                     <div class="flex items-center gap-3">
-                        <!-- ไอคอนหลัก: พื้นหลังดำ ไอคอนส้ม -->
+                        <!-- ไอคอนหลัก: พื้นหลังดำ ไอคอนส้ม (รูปกลอง) -->
                         <div class="w-12 h-12 bg-black rounded-xl flex items-center justify-center shadow-xl ring-1 ring-slate-900/5">
-                            <i data-lucide="drama" class="text-orange-500" width="28" height="28"></i>
+                            <i data-lucide="drum" class="text-orange-500" width="28" height="28"></i>
                         </div>
                         <div>
                             <h1 class="text-xl font-bold tracking-tight text-slate-800 italic">SiamShow</h1>
@@ -227,6 +227,7 @@
                                 <option>ตลก/วาไรตี้</option>
                                 <option>การแสดงพื้นเมือง</option>
                                 <option>พิธีกร/อีเวนต์</option>
+                                <option>อื่นๆ</option>
                             </select>
                         </div>
                         <div>
@@ -256,9 +257,15 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label class="text-[10px] font-black text-slate-400 mb-2 block uppercase tracking-[0.1em]">เบอร์โทรศัพท์ติดต่อ</label>
-                        <input required name="phone" type="tel" class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm focus:border-indigo-500 focus:bg-white outline-none" placeholder="08X-XXX-XXXX">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 mb-2 block uppercase tracking-[0.1em]">เบอร์โทรศัพท์ติดต่อ</label>
+                            <input required name="phone" type="tel" class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm focus:border-indigo-500 focus:bg-white outline-none" placeholder="08X-XXX-XXXX">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 mb-2 block uppercase tracking-[0.1em] text-[#06c755]">Line ID (ถ้ามี)</label>
+                            <input name="lineId" class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm focus:border-[#06c755] focus:bg-white outline-none" placeholder="ไอดีไลน์">
+                        </div>
                     </div>
 
                     <div>
@@ -298,6 +305,7 @@
                 price: 150000,
                 priceUnit: "งาน",
                 phone: "081-234-5678",
+                lineId: "sornram_fanclub",
                 description: "ลิเกเงินล้าน ขวัญใจแม่ยก แสดงสนุก ฉากอลังการ แสงสีเสียงครบครัน",
                 images: ["https://images.unsplash.com/photo-1621327017866-99c5132223a5?w=600", "https://images.unsplash.com/photo-1514525253440-b393452e3728?w=600"]
             },
@@ -310,32 +318,9 @@
                 price: 35000,
                 priceUnit: "งาน",
                 phone: "089-987-6543",
+                lineId: "samcha_fun",
                 description: "รับเล่นงานบวช งานแต่ง วงใหญ่ เครื่องเสียงแน่น นักร้องเอ็นเตอร์เทนยอดเยี่ยม",
                 images: ["https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600"]
-            },
-            {
-                id: 103,
-                title: "ตลกคณะ เชิญยิ้ม (รับเชิญ)",
-                type: "ตลก/วาไรตี้",
-                province: "ปทุมธานี",
-                amphoe: "คลองหลวง",
-                price: 50000,
-                priceUnit: "ชม.",
-                phone: "090-111-2222",
-                description: "สร้างเสียงหัวเราะให้งานของคุณ ด้วยมุกตลกที่ทันสมัย สุภาพ สนุกสนานได้ทุกวัย",
-                images: ["https://images.unsplash.com/photo-1585672922037-4b7261546738?w=600"]
-            },
-            {
-                id: 104,
-                title: "การแสดงโปงลางสะออน",
-                type: "การแสดงพื้นเมือง",
-                province: "ขอนแก่น",
-                amphoe: "เมือง",
-                price: 25000,
-                priceUnit: "งาน",
-                phone: "088-777-8888",
-                description: "อนุรักษ์วัฒนธรรมอีสาน ฟ้อนรำสวยงาม ดนตรีสด ม่วนซื่นโฮแซว",
-                images: ["https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?w=600"]
             }
         ];
 
@@ -348,9 +333,12 @@
             chatMessages: []
         };
 
-        const categories = ['ทั้งหมด', 'ลิเก', 'ดนตรี/วงดนตรี', 'คอนเสิร์ต', 'ตลก/วาไรตี้', 'การแสดงพื้นเมือง', 'พิธีกร/อีเวนต์'];
-        const mockProvinces = ["กรุงเทพมหานคร", "เชียงใหม่", "ขอนแก่น", "ภูเก็ต", "นครราชสีมา", "สงขลา", "ชลบุรี", "สุราษฎร์ธานี", "พระนครศรีอยุธยา", "ปทุมธานี"]; 
-        const mockDistricts = ["เมือง", "รอบนอก", "ปริมณฑล", "ลาดพร้าว", "คลองหลวง"];
+        const categories = ['ทั้งหมด', 'ลิเก', 'ดนตรี/วงดนตรี', 'คอนเสิร์ต', 'ตลก/วาไรตี้', 'การแสดงพื้นเมือง', 'พิธีกร/อีเวนต์', 'อื่นๆ'];
+        const allProvinces = [
+            "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"
+        ];
+        // Mock districts for simplicity (in a real app, this should be a full map or API)
+        const mockDistricts = ["เมือง", "รอบนอก", "ปริมณฑล", "อื่นๆ"];
 
         const LOADING_SPINNER = `<div class="flex flex-col items-center justify-center py-24 text-slate-300 gap-4"><div class="loader"></div><p class="text-xs font-bold tracking-widest uppercase">กำลังโหลดข้อมูลศิลปิน...</p></div>`;
 
@@ -407,7 +395,7 @@
                 const el = document.getElementById(id);
                 if(!el) return;
                 el.innerHTML = `<option value="">${id.includes('filter') ? 'ทุกจังหวัด' : 'เลือกจังหวัด'}</option>` + 
-                    mockProvinces.map(p => `<option value="${p}">${p}</option>`).join('');
+                    allProvinces.map(p => `<option value="${p}">${p}</option>`).join('');
             });
         }
 
@@ -428,15 +416,20 @@
                 if (!res.ok) throw new Error("API Error");
                 const result = await res.json();
                 
-                if (!result || (result.status === 'error') || (!result.data && !Array.isArray(result))) {
-                    throw new Error("Invalid Data");
+                // ตรวจสอบ response จาก GAS
+                // ถ้า result ไม่มีข้อมูล หรือ success = false (ถ้า backend ส่งมา) หรือ data ไม่ใช่ array
+                if (!result || (result.success === false && result.status !== 'success') || !Array.isArray(result.data)) {
+                     // เพิ่มการตรวจสอบเผื่อกรณี backend เก่าที่ส่งมาแค่ { data: [...] }
+                     if (!result.data && !Array.isArray(result)) throw new Error("Invalid API Data");
                 }
 
-                const apiData = result.data || result;
+                const apiData = result.data || (Array.isArray(result) ? result : []);
                 state.posts = apiData.map(p => ({
                     ...p, 
-                    price: parseFloat(p.price) || 0, 
-                    images: Array.isArray(p.images) ? p.images : (p.images ? [p.images] : []),
+                    price: Number(p.price) || 0, 
+                    images: Array.isArray(p.images) 
+                        ? p.images 
+                        : (typeof p.images === 'string' && p.images.startsWith('http') ? [p.images] : []),
                     title: p.title || "ไม่ระบุชื่อวง",
                     description: p.description || ""
                 }));
@@ -533,15 +526,77 @@
             document.getElementById('image-modal').classList.add('hidden');
         }
 
+        // --- ฟังก์ชันลบประกาศ ---
+        async function deletePost(id) {
+            const result = await Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: "คุณต้องการลบประกาศนี้ใช่หรือไม่?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f43f5e', // สีแดง Rose
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'ลบประกาศ',
+                cancelButtonText: 'ยกเลิก',
+                customClass: { popup: 'rounded-[2rem]' }
+            });
+
+            if (result.isConfirmed) {
+                // แสดง Loading
+                Swal.fire({ 
+                    title: 'กำลังลบ...', 
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading() },
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+
+                try {
+                    // พยายามลบผ่าน API
+                    try {
+                        await fetch(GAS_API_URL, { 
+                            method: 'POST', 
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'delete', id: id }) 
+                        });
+                    } catch(apiError) {
+                        console.warn("API delete failed, updating local state only", apiError);
+                    }
+
+                    // อัปเดตข้อมูลในหน้าเว็บ (ลบออกจาก Array)
+                    state.posts = state.posts.filter(p => p.id != id);
+                    
+                    await Swal.fire({
+                        title: 'ลบสำเร็จ!',
+                        icon: 'success',
+                        confirmButtonColor: '#4f46e5',
+                        customClass: { popup: 'rounded-[2rem]' }
+                    });
+                    
+                    router.navigate('home');
+                } catch (error) {
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถลบข้อมูลได้',
+                        icon: 'error',
+                        customClass: { popup: 'rounded-[2rem]' }
+                    });
+                }
+            }
+        }
+
         function renderDetail(postId) {
             const post = state.posts.find(p => p.id == postId);
             if(!post) return router.back();
             state.selectedPost = post;
-            const validImages = post.images.filter(i => i);
+            const validImages = Array.isArray(post.images) ? post.images.filter(Boolean) : [];
             
             document.getElementById('detail-content').innerHTML = `
                 <div class="relative h-[450px]">
-                    <button onclick="router.back()" class="absolute top-6 left-6 z-20 bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-xl text-slate-800"><i data-lucide="chevron-left"></i></button>
+                    <button onclick="router.back()" class="absolute top-6 left-6 z-20 bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-xl text-slate-800 hover:scale-105 transition-transform"><i data-lucide="chevron-left"></i></button>
+                    
+                    <!-- ปุ่มลบประกาศ -->
+                    <button onclick="deletePost('${post.id}')" class="absolute top-6 right-6 z-20 bg-rose-500/90 backdrop-blur-md p-3 rounded-2xl shadow-xl text-white hover:bg-rose-600 hover:scale-105 transition-all">
+                        <i data-lucide="trash-2" width="20"></i>
+                    </button>
                     
                     <div class="flex h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide">
                         ${validImages.length ? validImages.map(img => 
@@ -587,12 +642,19 @@
                     </div>
                 </div>
 
-                <div class="sticky bottom-0 bg-white/80 backdrop-blur-xl p-6 flex gap-4 border-t border-slate-50 safe-area-bottom z-30">
-                    <a href="tel:${post.phone}" class="flex-1 bg-slate-900 text-white py-5 rounded-[1.5rem] font-bold flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all">
-                        <i data-lucide="phone" width="20"></i> โทรติดต่อ
+                <div class="sticky bottom-0 bg-white/80 backdrop-blur-xl p-4 sm:p-6 flex gap-3 border-t border-slate-50 safe-area-bottom z-30">
+                    <a href="tel:${post.phone}" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 shadow-xl active:scale-95 transition-all text-xs sm:text-base">
+                        <i data-lucide="phone" width="18"></i> โทร
                     </a>
-                    <button onclick="router.navigate('chat', ${post.id})" class="flex-1 bg-indigo-600 text-white py-5 rounded-[1.5rem] font-bold flex items-center justify-center gap-3 shadow-2xl shadow-indigo-200 active:scale-95 transition-all">
-                        <i data-lucide="message-square" width="20"></i> แชทสอบถาม
+                    
+                    ${post.lineId ? `
+                    <a href="https://line.me/ti/p/~${post.lineId}" target="_blank" class="flex-1 bg-[#06c755] text-white py-4 rounded-2xl font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 shadow-xl shadow-green-200 active:scale-95 transition-all text-xs sm:text-base">
+                        <i data-lucide="message-circle" width="18"></i> ทักไลน์
+                    </a>
+                    ` : ''}
+
+                    <button onclick="router.navigate('chat', ${post.id})" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 shadow-xl shadow-indigo-200 active:scale-95 transition-all text-xs sm:text-base">
+                        <i data-lucide="message-square" width="18"></i> แชท
                     </button>
                 </div>
             `;
@@ -653,6 +715,7 @@
                 price: parseFloat(formData.get('price')) || 0, 
                 priceUnit: formData.get('priceUnit'),
                 phone: formData.get('phone'), 
+                lineId: formData.get('lineId'),
                 description: formData.get('description'), 
                 images: [...state.images].filter(i => i)
             };
@@ -669,8 +732,8 @@
                     console.warn("API Error during save, using mock behavior", apiError);
                 }
                 
-                // อัปเดต UI ทันที
-                state.posts.unshift(newPost);
+                // โหลดข้อมูลใหม่จาก Server เพื่อความชัวร์ (ตามคำแนะนำล่าสุด)
+                await fetchPosts();
                 
                 await Swal.fire({ 
                     title: 'สำเร็จ!', 
