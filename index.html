@@ -1,1 +1,702 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สยามโชว์ (SiamShow) - ศูนย์รวมงานแสดงและความบันเทิง</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --brand-primary: #6366f1; /* สี Indigo 500 */
+            --brand-secondary: #f43f5e; /* สี Rose 500 */
+            --bg-main: #f8fafc;
+        }
 
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: var(--bg-main);
+            color: #1e293b;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .image-slot {
+            aspect-ratio: 16/9;
+            border: 2px dashed #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #ffffff;
+        }
+        .image-slot:hover { border-color: var(--brand-primary); background: #f5f3ff; }
+        .image-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: 1.25rem; }
+        
+        .bg-gradient-indigo { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
+        .text-indigo { color: #4f46e5; }
+
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .zoom-in { animation: zoomIn 0.3s ease-out; }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--brand-primary);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .fab-button {
+            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.5);
+            z-index: 50;
+        }
+
+        .category-chip {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex justify-center items-center p-0 md:p-4">
+
+    <!-- กรอบแอปหลัก -->
+    <div class="w-full max-w-md bg-white shadow-2xl h-screen md:h-[850px] md:rounded-[2.5rem] overflow-hidden relative flex flex-col border border-slate-200" id="app">
+        
+        <!-- ================= หน้าหลัก (HOME) ================= -->
+        <div id="view-home" class="view h-full flex flex-col bg-slate-50">
+            <header class="bg-white px-6 pt-8 pb-4 z-20 border-b border-slate-100">
+                <div class="flex justify-between items-center mb-5">
+                    <div class="flex items-center gap-3">
+                        <!-- ไอคอนหลัก: พื้นหลังดำ ไอคอนส้ม -->
+                        <div class="w-12 h-12 bg-black rounded-xl flex items-center justify-center shadow-xl ring-1 ring-slate-900/5">
+                            <i data-lucide="drama" class="text-orange-500" width="28" height="28"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold tracking-tight text-slate-800 italic">SiamShow</h1>
+                            <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">จองคิวงานแสดงและศิลปิน</p>
+                        </div>
+                    </div>
+                    <button onclick="fetchPosts()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-indigo transition-colors" title="รีเฟรชข้อมูล">
+                        <i data-lucide="refresh-cw" width="18"></i>
+                    </button>
+                </div>
+                
+                <!-- ค้นหาและตัวกรอง -->
+                <div class="space-y-3 mb-4">
+                    <div class="relative group">
+                        <i data-lucide="search" class="absolute left-4 top-3.5 text-slate-400 transition-colors group-focus-within:text-indigo" width="18"></i>
+                        <input type="text" id="search-input" placeholder="ค้นหา ลิเก, วงดนตรี, คณะตลก..." 
+                            class="w-full pl-12 pr-4 py-3.5 bg-slate-100 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none">
+                    </div>
+
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <select id="filter-province" onchange="handleProvinceChange('filter')" 
+                                class="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 appearance-none focus:ring-2 focus:ring-indigo-500 outline-none truncate">
+                                <option value="">ทุกจังหวัด</option>
+                            </select>
+                            <i data-lucide="map-pin" class="absolute left-3 top-3.5 text-indigo" width="16"></i>
+                        </div>
+                        <div class="relative flex-1">
+                            <select id="filter-amphoe" onchange="renderHome()" 
+                                class="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 appearance-none focus:ring-2 focus:ring-indigo-500 outline-none truncate">
+                                <option value="">ทุกอำเภอ</option>
+                            </select>
+                            <i data-lucide="navigation" class="absolute left-3 top-3.5 text-slate-400" width="16"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- หมวดหมู่การแสดง -->
+                <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide" id="type-filters"></div>
+            </header>
+
+            <!-- รายการประกาศ -->
+            <div id="post-list" class="flex-1 overflow-y-auto p-5 space-y-5 pb-24 relative"></div>
+
+            <!-- ปุ่มเพิ่มประกาศ (FAB): พื้นหลังดำ ไอคอนส้ม -->
+            <button onclick="router.navigate('create')" class="fab-button absolute bottom-8 right-6 w-16 h-16 bg-black text-orange-500 rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-slate-900/30 ring-1 ring-white/10">
+                <i data-lucide="plus" width="32" stroke-width="3"></i>
+            </button>
+        </div>
+
+        <!-- ================= หน้ารายละเอียด (DETAIL) ================= -->
+        <div id="view-detail" class="view h-full flex flex-col bg-white hidden overflow-y-auto">
+            <div id="detail-content"></div>
+        </div>
+
+        <!-- ================= หน้าแชท (CHAT) ================= -->
+        <div id="view-chat" class="view h-full flex flex-col bg-slate-50 hidden relative">
+            <header class="bg-white px-5 py-4 flex items-center gap-4 shadow-sm sticky top-0 z-10">
+                <button onclick="router.back()" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                    <i data-lucide="chevron-left" class="text-slate-600"></i>
+                </button>
+                <div class="flex items-center gap-3 flex-1">
+                    <div class="w-10 h-10 rounded-full bg-indigo-100 overflow-hidden border border-white shadow-sm">
+                        <img id="chat-avatar" src="" class="w-full h-full object-cover" alt="รูปโปรไฟล์">
+                    </div>
+                    <div>
+                        <h3 id="chat-title" class="font-bold text-slate-800 text-sm leading-tight"></h3>
+                        <p class="text-[10px] text-emerald-500 flex items-center gap-1 font-bold">
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> ออนไลน์
+                        </p>
+                    </div>
+                </div>
+            </header>
+            
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-5 space-y-4 pb-4"></div>
+
+            <div class="p-4 bg-white border-t border-slate-100 safe-area-bottom">
+                <form onsubmit="sendMessage(event)" class="flex items-center gap-2">
+                    <button type="button" class="p-2.5 text-slate-400 hover:text-indigo-500 transition-colors">
+                        <i data-lucide="paperclip" width="22"></i>
+                    </button>
+                    <input type="text" id="chat-input" placeholder="สอบถามคิวงาน หรือรายละเอียด..." 
+                        class="flex-1 bg-slate-100 border-none rounded-2xl px-5 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none">
+                    <button type="submit" class="p-3 bg-gradient-indigo text-white rounded-2xl shadow-md active:scale-95 transition-all">
+                        <i data-lucide="send" width="20"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= หน้าสร้างประกาศ (CREATE) ================= -->
+        <div id="view-create" class="view h-full flex flex-col bg-white hidden">
+            <header class="px-6 py-6 flex items-center justify-between">
+                <button onclick="router.back()" class="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
+                    <i data-lucide="x"></i>
+                </button>
+                <h2 class="text-lg font-bold text-slate-800">ลงประกาศรับงานแสดง</h2>
+                <div class="w-8"></div>
+            </header>
+
+            <form id="create-form" class="flex-1 overflow-y-auto p-6 space-y-8 pb-12">
+                <div class="space-y-4">
+                    <label class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <i data-lucide="camera" width="18" class="text-indigo-500"></i>
+                        ภาพโปรโมทวง/คณะ (แนะนำขนาด 16:9)
+                    </label>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div class="image-slot" id="slot-0" onclick="triggerFileInput(0)">
+                            <i data-lucide="plus-circle" class="text-slate-300 mb-1" width="32"></i>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">เพิ่มรูปภาพหน้าปก</p>
+                            <input type="file" id="file-0" accept="image/*" class="hidden" onchange="handleFile(event, 0)">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="image-slot !aspect-square" id="slot-1" onclick="triggerFileInput(1)">
+                                <i data-lucide="image" class="text-slate-200" width="24"></i>
+                                <input type="file" id="file-1" accept="image/*" class="hidden" onchange="handleFile(event, 1)">
+                            </div>
+                            <div class="image-slot !aspect-square" id="slot-2" onclick="triggerFileInput(2)">
+                                <i data-lucide="image" class="text-slate-200" width="24"></i>
+                                <input type="file" id="file-2" accept="image/*" class="hidden" onchange="handleFile(event, 2)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    <div class="group">
+                        <label class="text-[10px] font-black text-slate-400 mb-2 block uppercase tracking-[0.1em]">ชื่อวง / คณะ / การแสดง</label>
+                        <input required name="title" class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm focus:border-indigo-500 focus:bg-white focus:ring-0 outline-none transition-all" placeholder="เช่น วงดนตรีสามช่ามันส์ระเบิด">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 mb-2 block uppercase tracking-[0.1em]">ประเภทงานแสดง</label>
+                            <select name="type" class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm outline-none appearance-none focus:border-indigo-500 focus:bg-white">
+                                <option>ลิเก</option>
+                                <option>ดนตรี/วงดนตรี</option>
+                                <option>คอนเสิร์ต</option>
+                                <option>ตลก/วาไรตี้</option>
+                                <option>การแสดงพื้นเมือง</option>
+                                <option>พิธีกร/อีเวนต์</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 mb-2 block uppercase tracking-[0.1em]">ราคาเริ่มต้น</label>
+                            <div class="flex gap-2">
+                                <input required name="price" type="number" class="flex-1 bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm focus:border-indigo-500 focus:bg-white outline-none" placeholder="0">
+                                <select name="priceUnit" class="w-20 bg-slate-50 border-2 border-slate-50 rounded-2xl text-[10px] font-bold outline-none">
+                                    <option value="งาน">/งาน</option>
+                                    <option value="ชม.">/ชม.</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 mb-2 block uppercase tracking-[0.1em]">จังหวัดที่รับงาน</label>
+                            <select name="province" id="create-province" onchange="handleProvinceChange('create')" class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm outline-none">
+                                <option value="">เลือกจังหวัด</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 mb-2 block uppercase tracking-[0.1em]">อำเภอ/เขต</label>
+                            <select name="amphoe" id="create-amphoe" class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm outline-none">
+                                <option value="">เลือกอำเภอ</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 mb-2 block uppercase tracking-[0.1em]">เบอร์โทรศัพท์ติดต่อ</label>
+                        <input required name="phone" type="tel" class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm focus:border-indigo-500 focus:bg-white outline-none" placeholder="08X-XXX-XXXX">
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 mb-2 block uppercase tracking-[0.1em]">รายละเอียดการแสดงเพิ่มเติม</label>
+                        <textarea name="description" rows="4" class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm focus:border-indigo-500 focus:bg-white outline-none" placeholder="แนะนำความโดดเด่น ผลงานที่ผ่านมา หรือข้อมูลอื่นๆ..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-indigo-200 active:scale-95 transition-all">
+                    บันทึกและลงประกาศ
+                </button>
+            </form>
+        </div>
+
+        <!-- Fullscreen Image Modal -->
+        <div id="image-modal" class="fixed inset-0 z-[60] bg-black/95 hidden flex items-center justify-center zoom-in" onclick="closeImageModal()">
+            <button onclick="closeImageModal()" class="absolute top-6 right-6 text-white p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all z-50">
+                <i data-lucide="x" width="24" height="24"></i>
+            </button>
+            <img id="modal-image" src="" class="max-w-full max-h-screen object-contain p-4 select-none" onclick="event.stopPropagation()">
+        </div>
+
+    </div>
+
+    <script>
+        // ใส่ URL ของ Google Apps Script Web App ของคุณที่นี่
+        const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyk5zJW5vuAVNjSzWd0PUgEQgGxEKA2l2n5G4Xep57rDoUDBYB5yo5t78tdjSvCzWm8/exec'; 
+        
+        // ข้อมูลจำลอง (Mock Data) กรณีเชื่อมต่อไม่ได้
+        const MOCK_DATA = [
+            {
+                id: 101,
+                title: "คณะลิเกศรราม น้ำเพชร (จำลอง)",
+                type: "ลิเก",
+                province: "พระนครศรีอยุธยา",
+                amphoe: "เมือง",
+                price: 150000,
+                priceUnit: "งาน",
+                phone: "081-234-5678",
+                description: "ลิเกเงินล้าน ขวัญใจแม่ยก แสดงสนุก ฉากอลังการ แสงสีเสียงครบครัน",
+                images: ["https://images.unsplash.com/photo-1621327017866-99c5132223a5?w=600", "https://images.unsplash.com/photo-1514525253440-b393452e3728?w=600"]
+            },
+            {
+                id: 102,
+                title: "วงดนตรีสามช่า มหาสนุก",
+                type: "ดนตรี/วงดนตรี",
+                province: "กรุงเทพมหานคร",
+                amphoe: "ลาดพร้าว",
+                price: 35000,
+                priceUnit: "งาน",
+                phone: "089-987-6543",
+                description: "รับเล่นงานบวช งานแต่ง วงใหญ่ เครื่องเสียงแน่น นักร้องเอ็นเตอร์เทนยอดเยี่ยม",
+                images: ["https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600"]
+            },
+            {
+                id: 103,
+                title: "ตลกคณะ เชิญยิ้ม (รับเชิญ)",
+                type: "ตลก/วาไรตี้",
+                province: "ปทุมธานี",
+                amphoe: "คลองหลวง",
+                price: 50000,
+                priceUnit: "ชม.",
+                phone: "090-111-2222",
+                description: "สร้างเสียงหัวเราะให้งานของคุณ ด้วยมุกตลกที่ทันสมัย สุภาพ สนุกสนานได้ทุกวัย",
+                images: ["https://images.unsplash.com/photo-1585672922037-4b7261546738?w=600"]
+            },
+            {
+                id: 104,
+                title: "การแสดงโปงลางสะออน",
+                type: "การแสดงพื้นเมือง",
+                province: "ขอนแก่น",
+                amphoe: "เมือง",
+                price: 25000,
+                priceUnit: "งาน",
+                phone: "088-777-8888",
+                description: "อนุรักษ์วัฒนธรรมอีสาน ฟ้อนรำสวยงาม ดนตรีสด ม่วนซื่นโฮแซว",
+                images: ["https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?w=600"]
+            }
+        ];
+
+        let state = {
+            posts: [],
+            currentView: 'home',
+            images: [null, null, null],
+            filterType: 'ทั้งหมด',
+            selectedPost: null,
+            chatMessages: []
+        };
+
+        const categories = ['ทั้งหมด', 'ลิเก', 'ดนตรี/วงดนตรี', 'คอนเสิร์ต', 'ตลก/วาไรตี้', 'การแสดงพื้นเมือง', 'พิธีกร/อีเวนต์'];
+        const mockProvinces = ["กรุงเทพมหานคร", "เชียงใหม่", "ขอนแก่น", "ภูเก็ต", "นครราชสีมา", "สงขลา", "ชลบุรี", "สุราษฎร์ธานี", "พระนครศรีอยุธยา", "ปทุมธานี"]; 
+        const mockDistricts = ["เมือง", "รอบนอก", "ปริมณฑล", "ลาดพร้าว", "คลองหลวง"];
+
+        const LOADING_SPINNER = `<div class="flex flex-col items-center justify-center py-24 text-slate-300 gap-4"><div class="loader"></div><p class="text-xs font-bold tracking-widest uppercase">กำลังโหลดข้อมูลศิลปิน...</p></div>`;
+
+        const router = {
+            navigate: (viewId, data = null) => {
+                document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+                const targetView = document.getElementById(`view-${viewId}`);
+                if (targetView) {
+                    targetView.classList.remove('hidden');
+                    targetView.classList.add('fade-in');
+                }
+                state.currentView = viewId;
+                if(viewId === 'detail') renderDetail(data);
+                if(viewId === 'chat') initChat(data);
+                if(viewId === 'home') renderHome();
+                lucide.createIcons();
+            },
+            back: () => {
+                if(state.currentView === 'chat') router.navigate('detail', state.selectedPost?.id);
+                else router.navigate('home');
+            }
+        };
+
+        function triggerFileInput(index) { document.getElementById(`file-${index}`).click(); }
+
+        function handleFile(event, index) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                state.images[index] = e.target.result;
+                const slot = document.getElementById(`slot-${index}`);
+                slot.innerHTML = `<img src="${e.target.result}" alt="รูปภาพประกอบ"><button type="button" onclick="removeImage(event, ${index})" class="absolute top-2 right-2 bg-rose-500 text-white rounded-full p-1.5 shadow-lg" title="ลบรูปภาพ"><i data-lucide="x" width="14"></i></button>`;
+                lucide.createIcons();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage(e, index) {
+            e.stopPropagation();
+            state.images[index] = null;
+            const slot = document.getElementById(`slot-${index}`);
+            if (index === 0) {
+                slot.innerHTML = `<i data-lucide="plus-circle" class="text-slate-300 mb-1" width="32"></i><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">เพิ่มรูปภาพหน้าปก</p><input type="file" id="file-0" accept="image/*" class="hidden" onchange="handleFile(event, 0)">`;
+            } else {
+                slot.innerHTML = `<i data-lucide="image" class="text-slate-200" width="24"></i><input type="file" id="file-${index}" accept="image/*" class="hidden" onchange="handleFile(event, index)">`;
+            }
+            lucide.createIcons();
+        }
+
+        function populateProvinceSelects() {
+            const selects = ['filter-province', 'create-province'];
+            selects.forEach(id => {
+                const el = document.getElementById(id);
+                if(!el) return;
+                el.innerHTML = `<option value="">${id.includes('filter') ? 'ทุกจังหวัด' : 'เลือกจังหวัด'}</option>` + 
+                    mockProvinces.map(p => `<option value="${p}">${p}</option>`).join('');
+            });
+        }
+
+        function handleProvinceChange(context) {
+            const amphoeSelect = document.getElementById(context === 'filter' ? 'filter-amphoe' : 'create-amphoe');
+            amphoeSelect.innerHTML = `<option value="">${context === 'filter' ? 'ทุกอำเภอ' : 'เลือกอำเภอ'}</option>` + 
+                mockDistricts.map(d => `<option value="${d}">${d}</option>`).join('');
+            if (context === 'filter') renderHome();
+        }
+
+        async function fetchPosts() {
+            const list = document.getElementById('post-list');
+            list.innerHTML = LOADING_SPINNER;
+            
+            try {
+                // ลองดึงข้อมูลจาก API
+                const res = await fetch(GAS_API_URL);
+                if (!res.ok) throw new Error("API Error");
+                const result = await res.json();
+                
+                if (!result || (result.status === 'error') || (!result.data && !Array.isArray(result))) {
+                    throw new Error("Invalid Data");
+                }
+
+                const apiData = result.data || result;
+                state.posts = apiData.map(p => ({
+                    ...p, 
+                    price: parseFloat(p.price) || 0, 
+                    images: Array.isArray(p.images) ? p.images : (p.images ? [p.images] : []),
+                    title: p.title || "ไม่ระบุชื่อวง",
+                    description: p.description || ""
+                }));
+                
+                renderHome();
+            } catch (error) {
+                console.warn("API Error, using Mock Data", error);
+                
+                // แจ้งเตือนผู้ใช้
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    icon: 'info',
+                    title: 'กำลังแสดงข้อมูลตัวอย่าง (Demo Mode)'
+                });
+
+                state.posts = MOCK_DATA;
+                renderHome();
+            }
+        }
+
+        function renderHome() {
+            const list = document.getElementById('post-list');
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const province = document.getElementById('filter-province').value;
+            const amphoe = document.getElementById('filter-amphoe').value;
+            
+            document.getElementById('type-filters').innerHTML = categories.map(t => `
+                <button onclick="state.filterType='${t}'; renderHome();" 
+                    class="category-chip px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all 
+                    ${state.filterType === t ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-white text-slate-500 border border-slate-100 hover:bg-slate-50'}">
+                    ${t}
+                </button>
+            `).join('');
+            
+            const filtered = state.posts.filter(p => {
+                const matchesSearch = (p.title + p.description).toLowerCase().includes(search);
+                const matchesType = state.filterType === 'ทั้งหมด' || p.type === state.filterType;
+                const matchesProv = !province || p.province === province;
+                const matchesAmphoe = !amphoe || p.amphoe === amphoe;
+                return matchesSearch && matchesType && matchesProv && matchesAmphoe;
+            });
+
+            if(filtered.length === 0) {
+                list.innerHTML = `<div class="flex flex-col items-center justify-center text-slate-300 mt-20">
+                    <i data-lucide="music-4" width="64" class="mb-4 opacity-20"></i>
+                    <p class="font-bold text-sm">ไม่พบงานแสดงที่คุณค้นหา</p>
+                </div>`;
+            } else {
+                list.innerHTML = filtered.map(p => `
+                    <div onclick="router.navigate('detail', ${p.id})" class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden fade-in cursor-pointer group active:scale-[0.98] transition-all">
+                        <div class="h-56 bg-slate-100 relative overflow-hidden">
+                            <img src="${p.images[0] || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600'}" 
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="${p.title}">
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-white/90 backdrop-blur-md text-indigo-600 text-[10px] font-black px-4 py-2 rounded-xl shadow-sm uppercase tracking-widest">${p.type}</span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-slate-800 text-lg line-clamp-1 mb-1">${p.title}</h3>
+                            <div class="flex items-center text-slate-400 text-[11px] gap-1.5 mb-5 font-medium italic">
+                                <i data-lucide="map-pin" width="12"></i> ${p.amphoe}, ${p.province}
+                            </div>
+                            <div class="flex items-end justify-between pt-5 border-t border-slate-50">
+                                <div>
+                                    <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-0.5">ราคาเริ่มต้น</p>
+                                    <p class="text-indigo-600 font-black text-2xl">฿${p.price.toLocaleString()}<span class="text-xs text-slate-300 font-normal italic"> /${p.priceUnit}</span></p>
+                                </div>
+                                <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                    <i data-lucide="arrow-right-circle" width="24"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            lucide.createIcons();
+        }
+
+        // --- Fullscreen Modal Logic ---
+        function openImageModal(src) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-image');
+            modalImg.src = src;
+            modal.classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('image-modal').classList.add('hidden');
+        }
+
+        function renderDetail(postId) {
+            const post = state.posts.find(p => p.id == postId);
+            if(!post) return router.back();
+            state.selectedPost = post;
+            const validImages = post.images.filter(i => i);
+            
+            document.getElementById('detail-content').innerHTML = `
+                <div class="relative h-[450px]">
+                    <button onclick="router.back()" class="absolute top-6 left-6 z-20 bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-xl text-slate-800"><i data-lucide="chevron-left"></i></button>
+                    
+                    <div class="flex h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+                        ${validImages.length ? validImages.map(img => 
+                            `<img src="${img}" onclick="openImageModal('${img}')" class="min-w-full h-full object-cover snap-start cursor-zoom-in active:opacity-90 transition-opacity" alt="รูปภาพผลงาน">`
+                        ).join('') : `<div class="min-w-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold tracking-widest text-xs uppercase">ไม่มีภาพประกอบ</div>`}
+                    </div>
+                    
+                    <div class="absolute bottom-6 right-6 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full text-white text-[10px] font-bold">1 / ${validImages.length || 0}</div>
+                </div>
+                
+                <div class="p-8 space-y-8 -mt-10 bg-white rounded-t-[3rem] relative shadow-[-10px_-10px_30px_rgba(0,0,0,0.05)]">
+                    <div class="flex justify-center -mt-12 mb-4">
+                        <div class="w-16 h-1.5 bg-slate-100 rounded-full"></div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex gap-2 mb-4">
+                            <span class="bg-indigo-50 text-indigo-600 text-[10px] font-black px-4 py-2 rounded-xl uppercase tracking-widest">${post.type}</span>
+                        </div>
+                        <h2 class="text-3xl font-black text-slate-800 mb-3 leading-tight">${post.title}</h2>
+                        <div class="flex items-center gap-2 text-slate-400 text-sm font-medium mb-4">
+                            <i data-lucide="map-pin" width="16" class="text-rose-500"></i> ${post.amphoe}, ${post.province}
+                        </div>
+                        <p class="text-3xl font-black text-indigo-600">฿${post.price.toLocaleString()}<span class="text-sm font-medium text-slate-300"> /${post.priceUnit}</span></p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                             <i data-lucide="info" width="18" class="text-indigo-500"></i> รายละเอียดการแสดง
+                        </h4>
+                        <p class="text-slate-500 text-sm leading-relaxed whitespace-pre-wrap font-medium">${post.description || 'ไม่มีรายละเอียดเพิ่มเติม'} <br><br> <span class="text-xs text-slate-400">*ข้อมูลจำลองเพื่อการทดสอบ</span></p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-5 rounded-3xl border border-slate-50">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">ความพร้อม</p>
+                            <p class="text-emerald-600 font-bold text-xs flex items-center gap-1.5 uppercase">รับงานทันที</p>
+                        </div>
+                        <div class="bg-slate-50 p-5 rounded-3xl border border-slate-50">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">ยืนยันตัวตน</p>
+                            <p class="text-indigo-600 font-bold text-xs flex items-center gap-1.5 uppercase">ตรวจสอบแล้ว</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sticky bottom-0 bg-white/80 backdrop-blur-xl p-6 flex gap-4 border-t border-slate-50 safe-area-bottom z-30">
+                    <a href="tel:${post.phone}" class="flex-1 bg-slate-900 text-white py-5 rounded-[1.5rem] font-bold flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all">
+                        <i data-lucide="phone" width="20"></i> โทรติดต่อ
+                    </a>
+                    <button onclick="router.navigate('chat', ${post.id})" class="flex-1 bg-indigo-600 text-white py-5 rounded-[1.5rem] font-bold flex items-center justify-center gap-3 shadow-2xl shadow-indigo-200 active:scale-95 transition-all">
+                        <i data-lucide="message-square" width="20"></i> แชทสอบถาม
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function initChat(postId) {
+            state.selectedPost = state.posts.find(p => p.id == postId);
+            if(!state.selectedPost) return;
+            document.getElementById('chat-title').innerText = state.selectedPost.title;
+            document.getElementById('chat-avatar').src = state.selectedPost.images[0] || 'https://via.placeholder.com/100';
+            state.chatMessages = [{ id: 1, sender: 'bot', text: 'สวัสดีครับ สนใจรายละเอียดงานแสดง หรือต้องการเช็คคิวงานวันไหนครับ?', time: new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}) }];
+            renderMessages();
+        }
+
+        function renderMessages() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = state.chatMessages.map(msg => `
+                <div class="flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[85%] px-5 py-3.5 rounded-2xl text-sm shadow-sm font-medium
+                        ${msg.sender === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none'}">
+                        ${msg.text}
+                        <div class="text-[9px] mt-1 text-right opacity-60">${msg.time}</div>
+                    </div>
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+            const now = new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+            state.chatMessages.push({ sender: 'user', text, time: now });
+            renderMessages();
+            input.value = '';
+            setTimeout(() => {
+                state.chatMessages.push({ sender: 'bot', text: 'ขอบพระคุณครับ จะรีบตรวจสอบข้อมูลและตอบกลับท่านโดยเร็วที่สุดครับ', time: now });
+                renderMessages();
+            }, 1200);
+        }
+
+        document.getElementById('create-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<div class="loader w-5 h-5 mr-3 inline-block"></div> กำลังบันทึก...`;
+            
+            const formData = new FormData(e.target);
+            const newPost = {
+                id: Date.now(), 
+                title: formData.get('title'), 
+                type: formData.get('type'),
+                province: formData.get('province'), 
+                amphoe: formData.get('amphoe'),
+                price: parseFloat(formData.get('price')) || 0, 
+                priceUnit: formData.get('priceUnit'),
+                phone: formData.get('phone'), 
+                description: formData.get('description'), 
+                images: [...state.images].filter(i => i)
+            };
+            
+            try {
+                // พยายามบันทึกผ่าน API
+                try {
+                    await fetch(GAS_API_URL, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(newPost) 
+                    });
+                } catch(apiError) {
+                    console.warn("API Error during save, using mock behavior", apiError);
+                }
+                
+                // อัปเดต UI ทันที
+                state.posts.unshift(newPost);
+                
+                await Swal.fire({ 
+                    title: 'สำเร็จ!', 
+                    text: 'งานแสดงของคุณถูกเพิ่มเข้าระบบแล้ว (Demo)',
+                    icon: 'success', 
+                    confirmButtonColor: '#4f46e5',
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+                e.target.reset();
+                state.images = [null, null, null];
+                router.navigate('home');
+            } catch (err) {
+                Swal.fire({ title: 'ผิดพลาด', text: 'ไม่สามารถบันทึกได้ กรุณาลองใหม่', icon: 'error' });
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "บันทึกและลงประกาศ";
+            }
+        });
+
+        document.getElementById('search-input').addEventListener('input', renderHome);
+
+        window.onload = () => {
+            populateProvinceSelects();
+            fetchPosts();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
