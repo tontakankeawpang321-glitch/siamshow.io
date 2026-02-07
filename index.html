@@ -101,7 +101,7 @@
                 <div class="space-y-3 mb-4">
                     <div class="relative group">
                         <i data-lucide="search" class="absolute left-4 top-3.5 text-slate-400 transition-colors group-focus-within:text-indigo" width="18"></i>
-                        <input type="text" id="search-input" placeholder="ค้นหา ลิเก, วงดนตรี, คณะตลก..." 
+                        <input type="text" id="search-input" placeholder="ค้นหา ลิเก, หมอลำ, นักร้อง..." 
                             class="w-full pl-12 pr-4 py-3.5 bg-slate-100 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none">
                     </div>
 
@@ -222,10 +222,16 @@
                             <label class="text-[10px] font-black text-slate-400 mb-2 block uppercase tracking-[0.1em]">ประเภทงานแสดง</label>
                             <select name="type" class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm outline-none appearance-none focus:border-indigo-500 focus:bg-white">
                                 <option>ลิเก</option>
+                                <option>หมอลำ</option>
                                 <option>ดนตรี/วงดนตรี</option>
+                                <option>นักร้องนำ</option>
                                 <option>คอนเสิร์ต</option>
+                                <option>รำวงย้อนยุค</option>
                                 <option>ตลก/วาไรตี้</option>
+                                <option>การฟ้อนรำ</option>
+                                <option>ละครสด</option>
                                 <option>การแสดงพื้นเมือง</option>
+                                <option>พิธีกร/อีเวนต์</option>
                                 <option>อื่นๆ</option>
                             </select>
                         </div>
@@ -332,7 +338,7 @@
             chatMessages: []
         };
 
-        const categories = ['ทั้งหมด', 'ลิเก', 'ดนตรี/วงดนตรี', 'คอนเสิร์ต', 'ตลก/วาไรตี้', 'การแสดงพื้นเมือง', 'พิธีกร/อีเวนต์', 'อื่นๆ'];
+        const categories = ['ทั้งหมด', 'ลิเก', 'หมอลำ', 'ดนตรี/วงดนตรี', 'นักร้องนำ', 'คอนเสิร์ต', 'รำวงย้อนยุค', 'ตลก/วาไรตี้', 'การฟ้อนรำ', 'ละครสด', 'การแสดงพื้นเมือง', 'พิธีกร/อีเวนต์', 'อื่นๆ'];
         const allProvinces = [
             "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"
         ];
