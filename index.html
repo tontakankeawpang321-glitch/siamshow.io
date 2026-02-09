@@ -92,9 +92,16 @@
                             <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">จองคิวงานแสดงและศิลปิน</p>
                         </div>
                     </div>
-                    <button onclick="fetchPosts()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-indigo transition-colors" title="รีเฟรชข้อมูล">
-                        <i data-lucide="refresh-cw" width="18"></i>
-                    </button>
+                    <div class="flex gap-2">
+                        <!-- ปุ่มรายการโปรด (เพิ่มใหม่) -->
+                        <button onclick="openFavoritesModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors" title="รายการโปรด">
+                            <i data-lucide="heart" width="18"></i>
+                        </button>
+                        <!-- ปุ่มรีเฟรช -->
+                        <button onclick="fetchPosts()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-indigo transition-colors" title="รีเฟรชข้อมูล">
+                            <i data-lucide="refresh-cw" width="18"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- ค้นหาและตัวกรอง -->
@@ -130,10 +137,26 @@
             <!-- รายการประกาศ -->
             <div id="post-list" class="flex-1 overflow-y-auto p-5 space-y-5 pb-24 relative"></div>
 
-            <!-- ปุ่มเพิ่มประกาศ (FAB): พื้นหลังดำ ไอคอนส้ม -->
-            <button onclick="router.navigate('create')" class="fab-button absolute bottom-8 right-6 w-16 h-16 bg-black text-orange-500 rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-slate-900/30 ring-1 ring-white/10">
-                <i data-lucide="plus" width="32" stroke-width="3"></i>
-            </button>
+            <!-- Bottom Navigation Bar (แทน FAB เดิม) -->
+            <div class="absolute bottom-0 w-full bg-white border-t border-slate-100 py-3 px-8 flex justify-between items-center z-30 rounded-b-[2.5rem] shadow-[0_-5px_20px_rgba(0,0,0,0.03)] safe-area-bottom">
+                
+                <button onclick="renderHome()" class="flex flex-col items-center gap-1 text-indigo-600 active:scale-95 transition-transform">
+                    <i data-lucide="home" width="24"></i>
+                    <span class="text-[10px] font-bold">หน้าแรก</span>
+                </button>
+
+                <div class="relative -top-6">
+                    <button onclick="router.navigate('create')" class="w-16 h-16 bg-black text-orange-500 rounded-full flex flex-col items-center justify-center shadow-2xl shadow-slate-900/30 ring-4 ring-white hover:scale-105 active:scale-95 transition-all">
+                        <i data-lucide="plus" width="30" stroke-width="3"></i>
+                        <span class="text-[8px] font-bold mt-0.5">ลงประกาศ</span>
+                    </button>
+                </div>
+
+                <button onclick="openFavoritesModal()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-rose-500 active:scale-95 transition-transform">
+                    <i data-lucide="heart" width="24"></i>
+                    <span class="text-[10px] font-bold">รายการโปรด</span>
+                </button>
+            </div>
         </div>
 
         <!-- ================= หน้ารายละเอียด (DETAIL) ================= -->
@@ -293,6 +316,26 @@
             <img id="modal-image" src="" class="max-w-full max-h-screen object-contain p-4 select-none" onclick="event.stopPropagation()">
         </div>
 
+        <!-- Favorites Modal (Dialog) -->
+        <div id="favorites-modal" class="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm hidden flex items-end sm:items-center justify-center fade-in">
+            <div class="bg-white w-full max-w-md h-[80vh] sm:h-[600px] rounded-t-[2.5rem] sm:rounded-[2rem] p-6 flex flex-col shadow-2xl relative">
+                <div class="flex justify-center mb-4 sm:hidden">
+                    <div class="w-12 h-1.5 bg-slate-200 rounded-full"></div>
+                </div>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="heart" class="text-rose-500 fill-current"></i> รายการโปรด
+                    </h2>
+                    <button onclick="closeFavoritesModal()" class="p-2 bg-slate-100 rounded-full hover:bg-slate-200">
+                        <i data-lucide="x" width="20"></i>
+                    </button>
+                </div>
+                <div id="favorites-list" class="flex-1 overflow-y-auto space-y-3 pb-6">
+                    <!-- รายการโปรดจะแสดงที่นี่ -->
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -342,7 +385,6 @@
         const allProvinces = [
             "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"
         ];
-        // Mock districts for simplicity (in a real app, this should be a full map or API)
         const mockDistricts = ["เมือง", "รอบนอก", "ปริมณฑล", "อื่นๆ"];
 
         const LOADING_SPINNER = `<div class="flex flex-col items-center justify-center py-24 text-slate-300 gap-4"><div class="loader"></div><p class="text-xs font-bold tracking-widest uppercase">กำลังโหลดข้อมูลศิลปิน...</p></div>`;
@@ -367,6 +409,81 @@
             }
         };
 
+        // --- ระบบรายการโปรด (Favorites) ---
+        function getFavorites() {
+            const stored = localStorage.getItem('siamshow_favorites');
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function isFavorite(postId) {
+            const favorites = getFavorites();
+            return favorites.some(p => p.id == postId);
+        }
+
+        function toggleFavorite(e, post) {
+            e.stopPropagation(); // ป้องกันไม่ให้กดเข้าหน้ารายละเอียด
+            let favorites = getFavorites();
+            const index = favorites.findIndex(p => p.id == post.id);
+            
+            if (index > -1) {
+                favorites.splice(index, 1); // ลบออก
+            } else {
+                favorites.push(post); // เพิ่มเข้า
+            }
+            
+            localStorage.setItem('siamshow_favorites', JSON.stringify(favorites));
+            
+            // อัปเดต UI หน้า Home
+            renderHome();
+            
+            // อัปเดต UI หน้า Detail ถ้าเปิดอยู่
+            if (state.currentView === 'detail' && state.selectedPost && state.selectedPost.id == post.id) {
+                renderDetail(post.id);
+            }
+
+            // ถ้า Modal เปิดอยู่ให้อัปเดตด้วย
+            if (!document.getElementById('favorites-modal').classList.contains('hidden')) {
+                renderFavoritesList();
+            }
+        }
+
+        function openFavoritesModal() {
+            const modal = document.getElementById('favorites-modal');
+            modal.classList.remove('hidden');
+            renderFavoritesList();
+        }
+
+        function closeFavoritesModal() {
+            document.getElementById('favorites-modal').classList.add('hidden');
+        }
+
+        function renderFavoritesList() {
+            const list = document.getElementById('favorites-list');
+            const favorites = getFavorites();
+            
+            if (favorites.length === 0) {
+                list.innerHTML = `<div class="text-center text-slate-400 py-10"><i data-lucide="heart-off" class="mx-auto mb-2 opacity-50" width="48"></i><p>ยังไม่มีรายการโปรด</p></div>`;
+            } else {
+                list.innerHTML = favorites.map(p => `
+                    <div onclick="closeFavoritesModal(); router.navigate('detail', ${p.id})" class="flex gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100 cursor-pointer hover:bg-slate-100 transition-colors">
+                        <div class="w-16 h-16 rounded-xl bg-slate-200 overflow-hidden flex-shrink-0">
+                            <img src="${p.images[0] || 'https://via.placeholder.com/150'}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-slate-800 text-sm truncate">${p.title}</h4>
+                            <p class="text-xs text-slate-500">${p.type}</p>
+                            <p class="text-indigo-600 font-bold text-sm">฿${p.price.toLocaleString()}</p>
+                        </div>
+                        <button onclick="toggleFavorite(event, {id: ${p.id}})" class="text-rose-500 self-start p-1">
+                            <i data-lucide="trash-2" width="16"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            lucide.createIcons();
+        }
+
+        // --- Image Helpers ---
         function triggerFileInput(index) { document.getElementById(`file-${index}`).click(); }
 
         function handleFile(event, index) {
@@ -416,15 +533,11 @@
             list.innerHTML = LOADING_SPINNER;
             
             try {
-                // ลองดึงข้อมูลจาก API
                 const res = await fetch(GAS_API_URL);
                 if (!res.ok) throw new Error("API Error");
                 const result = await res.json();
                 
-                // ตรวจสอบ response จาก GAS
-                // ถ้า result ไม่มีข้อมูล หรือ success = false (ถ้า backend ส่งมา) หรือ data ไม่ใช่ array
                 if (!result || (result.success === false && result.status !== 'success') || !Array.isArray(result.data)) {
-                     // เพิ่มการตรวจสอบเผื่อกรณี backend เก่าที่ส่งมาแค่ { data: [...] }
                      if (!result.data && !Array.isArray(result)) throw new Error("Invalid API Data");
                 }
 
@@ -443,7 +556,6 @@
             } catch (error) {
                 console.warn("API Error, using Mock Data", error);
                 
-                // แจ้งเตือนผู้ใช้
                 const Toast = Swal.mixin({
                     toast: true,
                     position: 'top-end',
@@ -489,14 +601,21 @@
                     <p class="font-bold text-sm">ไม่พบงานแสดงที่คุณค้นหา</p>
                 </div>`;
             } else {
-                list.innerHTML = filtered.map(p => `
-                    <div onclick="router.navigate('detail', ${p.id})" class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden fade-in cursor-pointer group active:scale-[0.98] transition-all">
+                list.innerHTML = filtered.map(p => {
+                    const postJson = JSON.stringify(p).replace(/"/g, '&quot;');
+                    const isFav = isFavorite(p.id);
+                    return `
+                    <div onclick="router.navigate('detail', ${p.id})" class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden fade-in cursor-pointer group active:scale-[0.98] transition-all relative">
                         <div class="h-56 bg-slate-100 relative overflow-hidden">
                             <img src="${p.images[0] || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600'}" 
                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="${p.title}">
                             <div class="absolute top-4 left-4">
                                 <span class="bg-white/90 backdrop-blur-md text-indigo-600 text-[10px] font-black px-4 py-2 rounded-xl shadow-sm uppercase tracking-widest">${p.type}</span>
                             </div>
+                            <!-- ปุ่มหัวใจบนการ์ด -->
+                            <button onclick="toggleFavorite(event, ${postJson})" class="absolute top-4 right-4 p-2 rounded-full backdrop-blur-md transition-all ${isFav ? 'bg-rose-500 text-white' : 'bg-white/90 text-slate-400 hover:text-rose-500'}">
+                                <i data-lucide="heart" class="${isFav ? 'fill-current' : ''}" width="18"></i>
+                            </button>
                         </div>
                         <div class="p-6">
                             <h3 class="font-bold text-slate-800 text-lg line-clamp-1 mb-1">${p.title}</h3>
@@ -514,7 +633,7 @@
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
             }
             lucide.createIcons();
         }
@@ -555,7 +674,6 @@
                 });
 
                 try {
-                    // พยายามลบผ่าน API
                     try {
                         await fetch(GAS_API_URL, { 
                             method: 'POST', 
@@ -593,6 +711,8 @@
             if(!post) return router.back();
             state.selectedPost = post;
             const validImages = Array.isArray(post.images) ? post.images.filter(Boolean) : [];
+            const isFav = isFavorite(post.id);
+            const postJson = JSON.stringify(post).replace(/"/g, '&quot;');
             
             document.getElementById('detail-content').innerHTML = `
                 <div class="relative h-[450px]">
@@ -618,8 +738,13 @@
                     </div>
                     
                     <div>
-                        <div class="flex gap-2 mb-4">
-                            <span class="bg-indigo-50 text-indigo-600 text-[10px] font-black px-4 py-2 rounded-xl uppercase tracking-widest">${post.type}</span>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex gap-2">
+                                <span class="bg-indigo-50 text-indigo-600 text-[10px] font-black px-4 py-2 rounded-xl uppercase tracking-widest">${post.type}</span>
+                            </div>
+                            <button onclick="toggleFavorite(event, ${postJson})" class="p-2 rounded-full transition-all ${isFav ? 'bg-rose-50 text-rose-500' : 'bg-slate-50 text-slate-400 hover:text-rose-500'}">
+                                <i data-lucide="heart" class="${isFav ? 'fill-current' : ''}" width="20"></i>
+                            </button>
                         </div>
                         <h2 class="text-3xl font-black text-slate-800 mb-3 leading-tight">${post.title}</h2>
                         <div class="flex items-center gap-2 text-slate-400 text-sm font-medium mb-4">
@@ -726,7 +851,6 @@
             };
             
             try {
-                // พยายามบันทึกผ่าน API
                 try {
                     await fetch(GAS_API_URL, { 
                         method: 'POST', 
@@ -737,7 +861,6 @@
                     console.warn("API Error during save, using mock behavior", apiError);
                 }
                 
-                // โหลดข้อมูลใหม่จาก Server เพื่อความชัวร์ (ตามคำแนะนำล่าสุด)
                 await fetchPosts();
                 
                 await Swal.fire({ 
